@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package example;
+
+import "google/protobuf/timestamp.proto";
+
+service GreeterService {
+    // stream responses from one request
+    rpc ItKeepsReplying (HelloRequest) returns (stream HelloReply) {}
+}
+
+// The request message containing the user's name.
+message HelloRequest {
+    uint32 limit = 1;
+}
+
+// The response message containing the greetings
+message HelloReply {
+    uint32 primes = 1;
+    google.protobuf.Timestamp timestamp = 2;
+}
