@@ -2,8 +2,6 @@ syntax = "proto3";
 
 package example;
 
-import "google/protobuf/timestamp.proto";
-
 service GreeterService {
     // stream responses from one request
     rpc ItKeepsReplying (HelloRequest) returns (stream HelloReply) {}
@@ -17,5 +15,4 @@ message HelloRequest {
 // The response message containing the greetings
 message HelloReply {
     uint32 primes = 1;
-    google.protobuf.Timestamp timestamp = 2;
 }

@@ -1,10 +1,9 @@
-import Dependencies._
+name := "gRPC-example"
 
-ThisBuild / scalaVersion     := "2.13.6"
-ThisBuild / version          := "0.1.0-SNAPSHOT"
+version := "0.1"
 
-lazy val root = (project in file("."))
-  .settings(
-    name := "gRPC-example"
-  )
-  .enablePlugins(AkkaGrpcPlugin)
+scalaVersion := "2.13.6"
+
+enablePlugins(AkkaGrpcPlugin)
+
+libraryDependencies ++= Dependencies.compileDependencies ++ Dependencies.testDependencies
