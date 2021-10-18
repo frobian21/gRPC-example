@@ -1,22 +1,29 @@
-import sbt.Compile
+import play.grpc.gen.scaladsl.{PlayScalaClientCodeGenerator, PlayScalaServerCodeGenerator}
 
 lazy val commonSettings = Seq(
   name := "gRPC-example",
   version := "0.1",
-  scalaVersion := "2.13.6",
+  scalaVersion := "2.12.15",
   libraryDependencies ++= Dependencies.compileDependencies ++ Dependencies.testDependencies,
-  Compile / scalaSource := baseDirectory.value / "app",
-  Test / scalaSource := baseDirectory.value / "test"
+  akkaGrpcGeneratedLanguages := Seq(AkkaGrpc.Scala),
+  PlayKeys.devSettings ++= Seq(
+    "play.server.http.port" -> "disabled",
+    "play.server.https.port" -> "9443",
+    "play.server.https.keyStore.path" -> "conf/selfsigned.keystore",
+  )
+
 )
 
 lazy val client = (project in file("."))
+  .enablePlugins(play.sbt.PlayScala, PlayAkkaHttp2Support, AkkaGrpcPlugin, ScalafmtCorePlugin)
   .settings(
-    commonSettings
-    //stub server
+    commonSettings,
+    akkaGrpcExtraGenerators += PlayScalaClientCodeGenerator,
+    akkaGrpcExtraGenerators += PlayScalaServerCodeGenerator
   )
-  .enablePlugins(play.sbt.PlayScala, AkkaGrpcPlugin, ScalafmtCorePlugin)
 
+//TODO split the server into a separate module
 //lazy val server = (project in file("server")).settings(
-//  commonSettings
-//  //stub client
+//  commonSettings,
+//  akkaGrpcExtraGenerators += PlayScalaServerCodeGenerator
 //)

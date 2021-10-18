@@ -1,0 +1,4 @@
+GET        /prime/:limit     clients.PrimeNumberController.getPrimes(limit: Int)
+
+# ----     gRPC services    ----
+->        /                  routers.PrimeNumberRouter

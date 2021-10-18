@@ -7,12 +7,10 @@ service PrimeNumberGenerator {
   rpc generatePrimes (PrimeNumberRequest) returns (stream PrimeNumberReply) {}
 }
 
-// The request message containing the user's name.
 message PrimeNumberRequest {
   uint32 limit = 1;
 }
 
-// The response message containing the greetings
 message PrimeNumberReply {
   uint32 primes = 1;
 }

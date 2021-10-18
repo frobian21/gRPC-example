@@ -1,19 +1,23 @@
+import play.core.PlayVersion.{akkaHttpVersion, akkaVersion, current}
 import sbt._
 
 object Dependencies {
-  val AkkaVersion = "2.6.14"
-  val AkkaHttpVersion = "10.2.2"
+  val playGrpcVersion = "0.9.1"
 
   lazy val compileDependencies = Seq(
-    "com.typesafe.akka" %% "akka-discovery" % AkkaVersion
+    "com.typesafe.play"  %% "play-guice"           % "2.8.8",
+    "com.lightbend.play" %% "play-grpc-runtime"    % playGrpcVersion,
+    "com.typesafe.akka"  %% "akka-discovery"       % akkaVersion,
+    "com.typesafe.akka"  %% "akka-http"            % akkaHttpVersion,
+    "com.typesafe.akka"  %% "akka-http-spray-json" % akkaHttpVersion
   )
-  lazy val testDependencies =  Seq(
-  "org.scalatest" %% "scalatest" % "3.2.10" % Test,
-  "org.scalacheck" %% "scalacheck" % "1.15.2" % Test,
-  "com.typesafe.akka" %% "akka-testkit" % AkkaVersion % Test,
-  "com.typesafe.akka" %% "akka-actor-testkit-typed" % AkkaVersion % Test,
-  "com.typesafe.akka" %% "akka-stream-testkit" % AkkaVersion % Test,
-  "com.typesafe.akka" %% "akka-http-testkit" % AkkaHttpVersion % Test,
-  "org.scalamock" %% "scalamock" % "5.1.0" % Test
+  val testDependencies = Seq(
+    "com.lightbend.play"     %% "play-grpc-scalatest" % playGrpcVersion % Test,
+    "com.lightbend.play"     %% "play-grpc-specs2"    % playGrpcVersion % Test,
+    "com.typesafe.play"      %% "play-test"           % current         % Test,
+    "org.scalatestplus.play" %% "scalatestplus-play"  % "5.0.0"         % Test,
+    "com.typesafe.akka"      %% "akka-stream-testkit" % akkaVersion     % Test,
+    "org.scalamock"          %% "scalamock"           % "5.1.0"         % Test
   )
+
 }
