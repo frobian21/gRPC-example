@@ -1,7 +1,7 @@
 import sbt._
 
 object Dependencies {
-  val AkkaVersion = "2.6.10"
+  val AkkaVersion = "2.6.14"
   val AkkaHttpVersion = "10.2.2"
 
   lazy val compileDependencies = Seq(

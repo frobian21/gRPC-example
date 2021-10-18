@@ -1,14 +1,14 @@
-package example
+package servers
 
 import akka.actor.ActorSystem
-import akka.grpc.GrpcClientSettings
-import akka.stream.scaladsl.{Sink, Source}
-import example.{GreeterService, GreeterServiceClient, HelloRequest}
+import akka.stream.scaladsl.Source
+import clients.GreeterClient
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.time.{Millis, Minutes, Span}
+import org.scalatest.wordspec.AnyWordSpec
+import proto._
 
 class GreeterClientSpec extends AnyWordSpec with Matchers with ScalaFutures with MockFactory {
   implicit override val patienceConfig: PatienceConfig = PatienceConfig(timeout = Span(3, Minutes), interval = Span(10, Millis))

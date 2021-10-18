@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package example;
+package proto;
 
 service GreeterService {
     // stream responses from one request

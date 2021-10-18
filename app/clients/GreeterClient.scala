@@ -1,14 +1,10 @@
-package example
+package clients
 
-import akka.{ Done, NotUsed }
 import akka.actor.ActorSystem
 import akka.grpc.GrpcClientSettings
-import akka.stream.scaladsl.{Sink, Source}
-
+import proto._
 
 import scala.concurrent.Future
-import scala.concurrent.duration._
-import scala.util.{ Failure, Success }
 
 object GreeterClient {
   implicit val sys = ActorSystem("HelloWorldClient")
