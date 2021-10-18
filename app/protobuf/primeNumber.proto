@@ -2,17 +2,17 @@ syntax = "proto3";
 
 package proto;
 
-service GreeterService {
-    // stream responses from one request
-    rpc ItKeepsReplying (HelloRequest) returns (stream HelloReply) {}
+service PrimeNumberGenerator {
+  // stream responses from one request
+  rpc generatePrimes (PrimeNumberRequest) returns (stream PrimeNumberReply) {}
 }
 
 // The request message containing the user's name.
-message HelloRequest {
-    uint32 limit = 1;
+message PrimeNumberRequest {
+  uint32 limit = 1;
 }
 
 // The response message containing the greetings
-message HelloReply {
-    uint32 primes = 1;
+message PrimeNumberReply {
+  uint32 primes = 1;
 }
