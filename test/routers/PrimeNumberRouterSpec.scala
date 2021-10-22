@@ -1,7 +1,9 @@
 package routers
 
+import akka.actor.ActorSystem
 import akka.stream.Materializer
-import akka.stream.scaladsl.Sink
+import akka.stream.scaladsl.{Sink, Source}
+import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneServerPerTest
@@ -11,14 +13,15 @@ import play.api.libs.ws.WSClient
 import play.api.routing.Router
 import play.api.Application
 import play.grpc.scalatest.ServerGrpcClient
-import proto.{PrimeNumberGenerator, PrimeNumberGeneratorClient, PrimeNumberRequest}
+import proto.{PrimeNumberGenerator, PrimeNumberGeneratorClient, PrimeNumberReply, PrimeNumberRequest}
 
 class PrimeNumberRouterSpec
     extends PlaySpec
     with GuiceOneServerPerTest
     with ServerGrpcClient
     with ScalaFutures
-    with IntegrationPatience {
+    with IntegrationPatience
+    with MockFactory {
 
   override def fakeApplication(): Application =
     GuiceApplicationBuilder().overrides(bind[Router].to[PrimeNumberRouter]).build()
@@ -44,11 +47,25 @@ class PrimeNumberRouterSpec
         .futureValue
       result.status mustBe 200
     }
+    //TODO mock the call to PrimeNumberCalculator here. This feels like a ITTest
     "work with a gRPC client" in withGrpcClient[PrimeNumberGeneratorClient] { client: PrimeNumberGeneratorClient =>
       implicit val mat: Materializer = app.injector.instanceOf[Materializer]
 
-      val reply = client.generatePrimes(PrimeNumberRequest(5)).runWith(Sink.seq).futureValue.map(_.primes)
-      reply mustBe List(1,2,3,4,5)
+      client.generatePrimes(PrimeNumberRequest(5)).runWith(Sink.seq).futureValue.map(_.primes) mustBe List(2, 3, 5)
+      client.generatePrimes(PrimeNumberRequest(1)).runWith(Sink.seq).futureValue.map(_.primes) mustBe List(0)
+    }
+  }
+  "primeNumberRouter" should {
+    "call the PrimeNumberCalculator and wrap the results" in {
+      val sys            = ActorSystem("MyTest")
+      implicit val mat   = Materializer(sys)
+      val mockCalculator = mock[PrimeNumberCalculator]
+      val stubbedRouter  = new PrimeNumberRouter(mat, sys, mockCalculator)
+
+      val response: List[Int] = 1.to(5).toList
+      (mockCalculator.generatePrimes _).expects(5).returning(Source(response))
+
+      stubbedRouter.generatePrimes(PrimeNumberRequest(5)).runWith(Sink.seq).futureValue.map(_.primes) mustBe response
     }
   }
 }

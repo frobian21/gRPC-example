@@ -12,11 +12,9 @@ import akka.stream.scaladsl.Source
 import com.google.inject.Inject
 import proto.{AbstractPrimeNumberGeneratorRouter, PrimeNumberReply, PrimeNumberRequest}
 
-class PrimeNumberRouter @Inject()(mat: Materializer, system: ActorSystem)
+class PrimeNumberRouter @Inject()(mat: Materializer, system: ActorSystem, primeNumberCalculator: PrimeNumberCalculator)
     extends AbstractPrimeNumberGeneratorRouter(system) {
 
-  override def generatePrimes(in: PrimeNumberRequest): Source[PrimeNumberReply, NotUsed] = {
-    println(s"sayHello to ${in.limit} with stream of chars...")
-    Source(1.to(in.limit).map(int => PrimeNumberReply(int)))
-  }
+  override def generatePrimes(request: PrimeNumberRequest): Source[PrimeNumberReply, NotUsed] =
+    primeNumberCalculator.generatePrimes(request.limit).map(int => PrimeNumberReply(int))
 }

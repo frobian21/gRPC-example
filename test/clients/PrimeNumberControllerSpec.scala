@@ -15,9 +15,9 @@ import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers, Injecting}
-import proto.{PrimeNumberGenerator, PrimeNumberReply, PrimeNumberRequest}
+import proto.{PrimeNumberGeneratorClient, PrimeNumberReply, PrimeNumberRequest}
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class PrimeNumberControllerSpec
     extends AnyWordSpec
@@ -30,13 +30,10 @@ class PrimeNumberControllerSpec
     PatienceConfig(timeout = Span(3, Minutes), interval = Span(10, Millis))
 
   implicit protected val system: ActorSystem  = ActorSystem("api-test")
-  implicit protected val ec: ExecutionContext = system.dispatcher
 
-  val mockServer: PrimeNumberGenerator = mock[PrimeNumberGenerator]
+  val mockClient: PrimeNumberGeneratorClient = mock[PrimeNumberGeneratorClient]
 
-  val controller = new PrimeNumberController(system, Helpers.stubControllerComponents()) {
-    override lazy val client: PrimeNumberGenerator = mockServer
-  }
+  val controller = new PrimeNumberController(mockClient, Helpers.stubControllerComponents())
 
   val fakeRequest = FakeRequest()
 
@@ -44,14 +41,28 @@ class PrimeNumberControllerSpec
     "handle server streaming" in {
       val limit               = 5
       val response: List[Int] = 1.to(5).toList
-      (mockServer.generatePrimes _)
+      (mockClient
+        .generatePrimes(_: PrimeNumberRequest))
         .expects(PrimeNumberRequest(limit))
         .returning(Source(response.map(PrimeNumberReply(_))))
 
       val result = controller.getPrimes(limit)(fakeRequest)
 
-      status(result) shouldBe OK
+      status(result)          shouldBe OK
       contentAsString(result) shouldBe "1,2,3,4,5"
+    }
+    "ignore 0 and return empty string" in {
+      val limit               = 5
+      val response: List[Int] = List.fill(5)(0)
+      (mockClient
+        .generatePrimes(_: PrimeNumberRequest))
+        .expects(PrimeNumberRequest(limit))
+        .returning(Source(response.map(PrimeNumberReply(_))))
+
+      val result = controller.getPrimes(limit)(fakeRequest)
+
+      status(result)          shouldBe OK
+      contentAsString(result) shouldBe ""
     }
   }
 
