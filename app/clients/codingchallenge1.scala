@@ -6,8 +6,10 @@ class codingchallenge1 {
   def makePastry(targetLayers: Int): List[Operations] = {
     val initialValue = LayerValue(targetLayers, List.empty[Operations])
 
+    //TODO error cases
     
     addAndFold(initialValue).steps.reverse
+    //TODO collapse
   }
 
   private def addAndFold(layer: LayerValue): LayerValue = {
