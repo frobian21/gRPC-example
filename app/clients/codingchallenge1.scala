@@ -6,12 +6,16 @@ class codingchallenge1 {
   def makePastry(targetLayers: Int): List[Operations] = {
     val initialValue = LayerValue(targetLayers, List.empty[Operations])
 
-    //TODO error cases
+    //TODO error cases and check this code still passes test
     
-    addAndFold(initialValue).steps.reverse
-    //TODO collapse
+    addAndFold(initialValue).steps.reverse.foldRight(List.empty[Operations]){
+      case (op: Operations, existingList: List[Operations]) if !list.headOption.contains(op) => List(op) ++ existingList
+      case (op: Operations, existingList: List[Operations] => List(list.head.increment()) ++ list.tail
+    }
+    
   }
 
+  @scala.annotation.tailrec
   private def addAndFold(layer: LayerValue): LayerValue = {
     layer match {
       case LayerValue(1, steps) => layer
@@ -29,7 +33,9 @@ class codingchallenge1 {
 
 case class LayerValue(numberOfLayers: Int, steps: List[Operations])
 
-sealed abstract class Operations(count: Int)
+sealed abstract class Operations(count: Int){
+  def increment() = this.copy(this.count + 1)
+}
 
 case class Fold(count: Int) extends Operations(count)
 
