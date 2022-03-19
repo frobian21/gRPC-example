@@ -2,41 +2,40 @@ package clients
 
 class codingchallenge1 {
 
-  //record number of steps
-  def makePastry(targetLayers: Int): List[Operations] = {
-    val initialValue = LayerValue(targetLayers, List.empty[Operations])
+  def makePastry(targetLayers: Int): List[LayerOperation] = {
+    val initialValue = LayerValue(targetLayers, List.empty[LayerOperation])
 
-    //TODO error cases and check this code still passes test
-    
-    addAndFold(initialValue).steps.reverse.foldRight(List.empty[Operations]){
-      case (op: Operations, existingList: List[Operations]) if !list.headOption.contains(op) => List(op) ++ existingList
-      case (op: Operations, existingList: List[Operations] => List(list.head.increment()) ++ list.tail
+    undoFolding(initialValue).previousSteps.reverse.foldRight(List.empty[LayerOperation]) {
+      case (Fold(1), Fold(x) :: tail) => Fold(x + 1) :: tail
+      case (Add(1), Add(x) :: tail)   => Add(x + 1) :: tail
+      case (operation, existingList)  => operation :: existingList
     }
-    
+
   }
 
   @scala.annotation.tailrec
-  private def addAndFold(layer: LayerValue): LayerValue = {
+  private def undoFolding(layer: LayerValue): LayerValue =
     layer match {
-      case LayerValue(1, steps) => layer
-      case LayerValue(layers, steps) if layers % 2 == 0 => addAndFold(doFold(layer))
-      case _ => addAndFold(doAdd(layer))
+      case LayerValue(1, _) => layer
+      case LayerValue(layers, _) if layers % 2 == 0 => undoFolding(undoFold(layer))
+      case _ => undoFolding(undoAdd(layer))
     }
-  }
 
-  private def doFold(layerValue: LayerValue): LayerValue =
-    layerValue.copy(layerValue.numberOfLayers / 2, layerValue.steps :+ Fold(1))
+  private def undoFold(layerValue: LayerValue): LayerValue =
+    layerValue.copy(layerValue.numberOfLayers / 2, layerValue.previousSteps :+ Fold(1))
 
-  private def doAdd(layerValue: LayerValue): LayerValue =
-    layerValue.copy(layerValue.numberOfLayers - 1, layerValue.steps :+ Add(1))
+  private def undoAdd(layerValue: LayerValue): LayerValue =
+    layerValue.copy(layerValue.numberOfLayers - 1, layerValue.previousSteps :+ Add(1))
 }
 
-case class LayerValue(numberOfLayers: Int, steps: List[Operations])
-
-sealed abstract class Operations(count: Int){
-  def increment() = this.copy(this.count + 1)
+case class LayerValue(numberOfLayers: Int, previousSteps: List[LayerOperation]) {
+  require(numberOfLayers >= 1)
 }
 
-case class Fold(count: Int) extends Operations(count)
+sealed trait LayerOperation {
+  val count: Int
+}
 
-case class Add(count: Int) extends Operations(count)
+case class Fold(count: Int) extends LayerOperation
+
+case class Add(count: Int) extends LayerOperation
